@@ -1,0 +1,22 @@
+{
+  "name": "rpg-3js-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rspack build --mode production",
+    "dev": "rspack serve --mode development"
+  },
+  "dependencies": {
+    "inversify": "^7.5.4",
+    "reflect-metadata": "^0.2.2",
+    "three": "^0.179.1"
+  },
+  "devDependencies": {
+    "@rspack/cli": "^1.6.4",
+    "@rspack/core": "^1.6.4",
+    "@types/node": "^24.3.0",
+    "@types/three": "^0.179.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.2"
+  }
+}

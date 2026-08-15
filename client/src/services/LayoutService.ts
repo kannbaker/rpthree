@@ -1,0 +1,36 @@
+import { inject, injectable } from "inversify";
+
+import { SERVICE_TYPES } from "../container/serviceTypes";
+import type { Service3D } from "./Service3D";
+
+@injectable()
+export class LayoutService {
+  private static readonly MOUNT_NODE_ID = "mount-node";
+
+  public constructor(@inject(SERVICE_TYPES.Service3D) private readonly service3D: Service3D) {}
+
+  public start(): void {
+    const mountNode = this.getMountNode();
+    this.service3D.start(mountNode);
+  }
+
+  public stop(): void {
+    this.service3D.stop();
+
+    const mountNode = document.getElementById(LayoutService.MOUNT_NODE_ID);
+    mountNode?.remove();
+  }
+
+  public getMountNode(): HTMLElement {
+    const existingMountNode = document.getElementById(LayoutService.MOUNT_NODE_ID);
+    if (existingMountNode) {
+      return existingMountNode;
+    }
+
+    const mountNode = document.createElement("div");
+    mountNode.id = LayoutService.MOUNT_NODE_ID;
+    document.body.appendChild(mountNode);
+
+    return mountNode;
+  }
+}
