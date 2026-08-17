@@ -1,21 +1,23 @@
 import { inject, injectable } from "inversify";
 
 import { SERVICE_TYPES } from "../container/serviceTypes";
-import type { Service3D } from "./Service3D";
+import type { WebGLRenderer } from "./WebGLRenderer";
 
 @injectable()
 export class LayoutService {
   private static readonly MOUNT_NODE_ID = "mount-node";
 
-  public constructor(@inject(SERVICE_TYPES.Service3D) private readonly service3D: Service3D) {}
+  public constructor(
+    @inject(SERVICE_TYPES.WebGLRenderer) private readonly webGLRenderer: WebGLRenderer
+  ) {}
 
   public start(): void {
     const mountNode = this.getMountNode();
-    this.service3D.start(mountNode);
+    this.webGLRenderer.start(mountNode);
   }
 
   public stop(): void {
-    this.service3D.stop();
+    this.webGLRenderer.stop();
 
     const mountNode = document.getElementById(LayoutService.MOUNT_NODE_ID);
     mountNode?.remove();

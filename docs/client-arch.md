@@ -3,7 +3,7 @@
 ```mermaid
 flowchart TD
     App["App"] --> LayoutService["LayoutService"]
-    LayoutService --> Service3D["Service3D"]
-    Service3D --> CameraService["CameraService"]
-    Service3D --> SceneService["SceneService"]
+    LayoutService --> WebGLRenderer["WebGLRenderer"]
+    WebGLRenderer --> Scene["Scene interface"]
+    Scene --> RotatingCubeScene["RotatingCubeScene"]
 ```

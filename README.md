@@ -2,7 +2,7 @@
 
 ## Runtime
 
-- Node.js
+- Node.js 20.12+
 - npm
 
 ## Client Setup

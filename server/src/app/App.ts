@@ -12,4 +12,8 @@ export class App {
   public async start(): Promise<void> {
     await this.httpService.start();
   }
+
+  public async stop(): Promise<void> {
+    await this.httpService.stop();
+  }
 }

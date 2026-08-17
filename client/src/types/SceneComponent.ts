@@ -5,4 +5,5 @@ export interface SceneComponent {
   remove(scene: Scene): void;
   animate(): void;
   freeze(): void;
+  setPosition(x: number, y: number, z: number): void;
 }

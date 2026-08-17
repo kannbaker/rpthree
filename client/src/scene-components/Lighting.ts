@@ -1,6 +1,6 @@
 import { AmbientLight, DirectionalLight, type Scene } from "three";
 
-import type { SceneComponent } from "./SceneComponent";
+import type { SceneComponent } from "../types/SceneComponent";
 
 export class Lighting implements SceneComponent {
   private readonly directionalLight: DirectionalLight;
@@ -8,7 +8,6 @@ export class Lighting implements SceneComponent {
 
   public constructor() {
     this.directionalLight = new DirectionalLight(0xffffff, 1.5);
-    this.directionalLight.position.set(0, 20, 10);
     this.ambientLight = new AmbientLight(0x707070);
   }
 
@@ -25,4 +24,8 @@ export class Lighting implements SceneComponent {
   public animate(): void {}
 
   public freeze(): void {}
+
+  public setPosition(x: number, y: number, z: number): void {
+    this.directionalLight.position.set(x, y, z);
+  }
 }

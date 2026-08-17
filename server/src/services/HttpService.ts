@@ -1,4 +1,4 @@
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import fastify, { type FastifyInstance } from "fastify";
 
 import { inject, injectable } from "inversify";
 
@@ -8,53 +8,48 @@ import type { StaticService } from "./StaticService";
 
 @injectable()
 export class HttpService {
+  private app: FastifyInstance | null = null;
+
   public constructor(
     @inject(SERVICE_TYPES.EnvService) private readonly envService: EnvService,
     @inject(SERVICE_TYPES.StaticService) private readonly staticService: StaticService
   ) {}
 
   public async start(): Promise<void> {
+    if (this.app !== null) {
+      throw new Error("HTTP server is already started");
+    }
+
+    const app = fastify({ logger: false });
     const port = this.envService.getPort();
-    const staticDir = this.staticService.getStaticDir();
+    const staticDir = this.envService.getStaticDir();
 
-    const server = createServer((request, response) => {
-      void this.handleRequest(request, response);
-    });
-
-    await new Promise<void>((resolvePromise) => {
-      server.listen(port, () => {
-        console.log(`Static proxy server is listening on http://localhost:${port}`);
-        console.log(`Serving /static/* from ${staticDir}`);
-        resolvePromise();
+    try {
+      app.setNotFoundHandler(async (_request, reply) => {
+        reply.code(404).type("text/plain; charset=utf-8").send("Not Found");
       });
-    });
+
+      await this.staticService.start(app, staticDir);
+      await app.listen({ port, host: "0.0.0.0" });
+      this.app = app;
+
+      console.log(`Static proxy server is listening on http://localhost:${port}`);
+      console.log(`Serving /static/* from ${staticDir}`);
+    } catch (error: unknown) {
+      await app.close().catch(() => undefined);
+      this.app = null;
+      throw error;
+    }
   }
 
-  private async handleRequest(request: IncomingMessage, response: ServerResponse): Promise<void> {
-    const method = request.method ?? "GET";
-    if (method !== "GET" && method !== "HEAD") {
-      response.writeHead(405, { "Content-Type": "text/plain; charset=utf-8" });
-      response.end("Method Not Allowed");
+  public async stop(): Promise<void> {
+    const app = this.app;
+    this.app = null;
+
+    if (app === null) {
       return;
     }
 
-    const requestUrl = request.url ?? "/";
-    if (!this.isStaticRoute(requestUrl)) {
-      response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      response.end("Not Found");
-      return;
-    }
-
-    if (method === "HEAD") {
-      await this.staticService.respondHead(requestUrl, response);
-      return;
-    }
-
-    await this.staticService.serve(requestUrl, response);
-  }
-
-  private isStaticRoute(urlPath: string): boolean {
-    const pathname = urlPath.split("?")[0];
-    return pathname === "/static" || pathname === "/static/" || pathname.startsWith("/static/");
+    await app.close();
   }
 }

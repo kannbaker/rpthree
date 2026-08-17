@@ -1,6 +1,6 @@
 import { BoxGeometry, Mesh, MeshPhongMaterial, type Scene } from "three";
 
-import type { SceneComponent } from "./SceneComponent";
+import type { SceneComponent } from "../types/SceneComponent";
 
 export class RotatingCube implements SceneComponent {
   private animationFrameId: number | null = null;
@@ -36,6 +36,10 @@ export class RotatingCube implements SceneComponent {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
+  }
+
+  public setPosition(x: number, y: number, z: number): void {
+    this.cube.position.set(x, y, z);
   }
 
   private readonly step = (): void => {

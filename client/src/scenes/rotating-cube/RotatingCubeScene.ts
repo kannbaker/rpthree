@@ -1,0 +1,50 @@
+import { injectable } from "inversify";
+import { PerspectiveCamera, Scene as ThreeScene } from "three";
+
+import { Lighting } from "../../scene-components/Lighting";
+import { RotatingCube } from "../../scene-components/RotatingCube";
+import type { Scene } from "../../types/Scene";
+import type { SceneComponent } from "../../types/SceneComponent";
+
+@injectable()
+export class RotatingCubeScene implements Scene {
+  private readonly scene: ThreeScene;
+  private readonly mainCamera: PerspectiveCamera;
+  private sceneComponents: SceneComponent[] = [];
+
+  public constructor() {
+    this.scene = new ThreeScene();
+    this.mainCamera = new PerspectiveCamera(75, 1, 0.1, 1000);
+    this.mainCamera.position.z = 3;
+  }
+
+  public start(): void {
+    const rotatingCube = new RotatingCube();
+    rotatingCube.setPosition(0, 0, 0);
+
+    const lighting = new Lighting();
+    lighting.setPosition(0, 20, 10);
+
+    this.sceneComponents.push(rotatingCube, lighting);
+
+    for (const sceneComponent of this.sceneComponents) {
+      sceneComponent.add(this.scene);
+    }
+  }
+
+  public stop(): void {
+    for (const sceneComponent of this.sceneComponents) {
+      sceneComponent.remove(this.scene);
+    }
+
+    this.sceneComponents = [];
+  }
+
+  public getScene(): ThreeScene {
+    return this.scene;
+  }
+
+  public getMainCamera(): PerspectiveCamera {
+    return this.mainCamera;
+  }
+}

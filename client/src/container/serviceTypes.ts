@@ -1,7 +1,6 @@
 export const SERVICE_TYPES = {
   App: Symbol.for("App"),
-  CameraService: Symbol.for("CameraService"),
   LayoutService: Symbol.for("LayoutService"),
-  SceneService: Symbol.for("SceneService"),
-  Service3D: Symbol.for("Service3D")
+  Scene: Symbol.for("Scene"),
+  WebGLRenderer: Symbol.for("WebGLRenderer")
 } as const;
