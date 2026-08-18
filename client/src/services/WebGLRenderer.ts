@@ -8,6 +8,7 @@ import type { Scene } from "../types/Scene";
 export class WebGLRenderer {
   private mountNode: HTMLElement | null = null;
   private animationFrameId: number | null = null;
+  private lastFrameTime: number | null = null;
   private readonly renderer: ThreeWebGLRenderer;
 
   public constructor(@inject(SERVICE_TYPES.Scene) private readonly scene: Scene) {
@@ -29,6 +30,7 @@ export class WebGLRenderer {
       this.animationFrameId = null;
     }
 
+    this.lastFrameTime = null;
     this.scene.stop();
     this.mountNode = null;
   }
@@ -42,7 +44,11 @@ export class WebGLRenderer {
     this.renderer.setSize(width, height);
   }
 
-  private readonly tick = (): void => {
+  private readonly tick = (time: number = performance.now()): void => {
+    const deltaTime = this.lastFrameTime === null ? 0 : (time - this.lastFrameTime) / 1000;
+    this.lastFrameTime = time;
+
+    this.scene.tick(deltaTime);
     this.renderer.render(this.scene.getScene(), this.scene.getMainCamera());
     this.animationFrameId = requestAnimationFrame(this.tick);
   };

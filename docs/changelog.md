@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.2
+
+- client scene lifecycle switched to `tick(deltaTime)`
+- `WebGLRenderer` owns the single render loop
+- `SceneComponent` no longer owns per-component `requestAnimationFrame`
+
 ## v1.0.1
 
 - express -> fastify

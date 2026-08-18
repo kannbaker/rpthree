@@ -21,11 +21,9 @@ export class Lighting implements SceneComponent {
     scene.remove(this.ambientLight);
   }
 
-  public animate(): void {}
-
-  public freeze(): void {}
-
   public setPosition(x: number, y: number, z: number): void {
     this.directionalLight.position.set(x, y, z);
   }
+
+  public tick(_deltaTime: number): void {}
 }

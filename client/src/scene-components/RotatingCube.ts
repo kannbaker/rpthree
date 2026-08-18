@@ -3,7 +3,6 @@ import { BoxGeometry, Mesh, MeshPhongMaterial, type Scene } from "three";
 import type { SceneComponent } from "../types/SceneComponent";
 
 export class RotatingCube implements SceneComponent {
-  private animationFrameId: number | null = null;
   private readonly cube: Mesh;
 
   public constructor() {
@@ -15,36 +14,18 @@ export class RotatingCube implements SceneComponent {
 
   public add(scene: Scene): void {
     scene.add(this.cube);
-    this.animate();
   }
 
   public remove(scene: Scene): void {
-    this.freeze();
     scene.remove(this.cube);
-  }
-
-  public animate(): void {
-    if (this.animationFrameId !== null) {
-      return;
-    }
-
-    this.step();
-  }
-
-  public freeze(): void {
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
   }
 
   public setPosition(x: number, y: number, z: number): void {
     this.cube.position.set(x, y, z);
   }
 
-  private readonly step = (): void => {
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
-    this.animationFrameId = requestAnimationFrame(this.step);
-  };
+  public tick(deltaTime: number): void {
+    this.cube.rotation.x += deltaTime;
+    this.cube.rotation.y += deltaTime;
+  }
 }

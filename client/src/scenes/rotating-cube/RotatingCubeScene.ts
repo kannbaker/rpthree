@@ -40,6 +40,12 @@ export class RotatingCubeScene implements Scene {
     this.sceneComponents = [];
   }
 
+  public tick(deltaTime: number): void {
+    for (const sceneComponent of this.sceneComponents) {
+      sceneComponent.tick(deltaTime);
+    }
+  }
+
   public getScene(): ThreeScene {
     return this.scene;
   }
