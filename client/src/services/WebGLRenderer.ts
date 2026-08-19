@@ -4,6 +4,7 @@ import { WebGLRenderer as ThreeWebGLRenderer } from "three";
 import { SERVICE_TYPES } from "../container/serviceTypes";
 import type { ResourceLoaderService } from "./ResourceLoaderService";
 import type { Scene } from "../types/Scene";
+import type { StatsService } from "./StatsService";
 
 @injectable()
 export class WebGLRenderer {
@@ -15,7 +16,8 @@ export class WebGLRenderer {
   public constructor(
     @inject(SERVICE_TYPES.ResourceLoaderService)
     private readonly resourceLoaderService: ResourceLoaderService,
-    @inject(SERVICE_TYPES.Scene) private readonly scene: Scene
+    @inject(SERVICE_TYPES.Scene) private readonly scene: Scene,
+    @inject(SERVICE_TYPES.StatsService) private readonly statsService: StatsService
   ) {
     this.renderer = new ThreeWebGLRenderer({ antialias: true });
   }
@@ -30,6 +32,7 @@ export class WebGLRenderer {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.updateViewport();
     this.mountNode.appendChild(this.renderer.domElement);
+    this.statsService.mount(this.mountNode);
     this.scene.start();
     await this.warmupRenderer();
     this.tick();
@@ -42,6 +45,7 @@ export class WebGLRenderer {
     }
 
     this.lastFrameTime = null;
+    this.statsService.unmount();
     this.scene.stop();
     this.mountNode = null;
   }
@@ -56,11 +60,14 @@ export class WebGLRenderer {
   }
 
   private readonly tick = (time: number = performance.now()): void => {
+    this.statsService.begin();
+
     const deltaTime = this.lastFrameTime === null ? 0 : (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
 
     this.scene.tick(deltaTime);
     this.renderer.render(this.scene.getScene(), this.scene.getMainCamera());
+    this.statsService.end();
     this.animationFrameId = requestAnimationFrame(this.tick);
   };
 

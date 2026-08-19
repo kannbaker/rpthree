@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.4
+
+- added default character animation playback via `AnimationMixer`
+- added `StatsService` FPS overlay
+- mounted stats overlay relative to the scene mount node
+
 ## v1.0.3
 
 - added `LostTreasureScene`
