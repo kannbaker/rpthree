@@ -12,7 +12,12 @@ module.exports = {
   devtool: "source-map",
   devServer: {
     host: "0.0.0.0",
-    port: 3100
+    port: 3100,
+    static: {
+      directory: path.resolve(__dirname, "../static"),
+      publicPath: "/static",
+      watch: true
+    }
   },
   resolve: {
     extensions: [".ts", ".js"]

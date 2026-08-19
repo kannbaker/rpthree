@@ -2,5 +2,4 @@
 **/.env
 !.env.example
 !**/.env.example
-static/assets/
-static/index.html
+static/

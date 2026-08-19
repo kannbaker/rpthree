@@ -16,6 +16,12 @@ export class RotatingCube implements SceneComponent {
     scene.add(this.cube);
   }
 
+  public getSources(): string[] {
+    return [];
+  }
+
+  public build(_resources: unknown[]): void {}
+
   public remove(scene: Scene): void {
     scene.remove(this.cube);
   }

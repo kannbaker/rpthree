@@ -16,6 +16,12 @@ export class Lighting implements SceneComponent {
     scene.add(this.ambientLight);
   }
 
+  public getSources(): string[] {
+    return [];
+  }
+
+  public build(_resources: unknown[]): void {}
+
   public remove(scene: Scene): void {
     scene.remove(this.directionalLight);
     scene.remove(this.ambientLight);

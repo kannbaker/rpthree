@@ -11,9 +11,9 @@ export class LayoutService {
     @inject(SERVICE_TYPES.WebGLRenderer) private readonly webGLRenderer: WebGLRenderer
   ) {}
 
-  public start(): void {
+  public async start(): Promise<void> {
     const mountNode = this.getMountNode();
-    this.webGLRenderer.start(mountNode);
+    await this.webGLRenderer.start(mountNode);
   }
 
   public stop(): void {

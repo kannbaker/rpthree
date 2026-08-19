@@ -7,7 +7,7 @@ import type { LayoutService } from "../services/LayoutService";
 export class App {
   public constructor(@inject(SERVICE_TYPES.LayoutService) private readonly layoutService: LayoutService) {}
 
-  public start(): void {
-    this.layoutService.start();
+  public async start(): Promise<void> {
+    await this.layoutService.start();
   }
 }

@@ -6,14 +6,12 @@ import { SERVICE_TYPES } from "./container/serviceTypes";
 
 class Bootstrap {
   public run(): void {
-    try {
-      const container = createContainer();
-      const app = container.get<App>(SERVICE_TYPES.App);
+    const container = createContainer();
+    const app = container.get<App>(SERVICE_TYPES.App);
 
-      app.start();
-    } catch (error: unknown) {
+    void app.start().catch((error: unknown) => {
       console.error(error);
-    }
+    });
   }
 }
 

@@ -1,9 +1,10 @@
 import { Container } from "inversify";
 
 import { App } from "../app/App";
-import { RotatingCubeScene } from "../scenes/rotating-cube/RotatingCubeScene";
 import { LayoutService } from "../services/LayoutService";
+import { ResourceLoaderService } from "../services/ResourceLoaderService";
 import { WebGLRenderer } from "../services/WebGLRenderer";
+import { LostTreasureScene } from "../scenes/lost-treasure/LostTreasureScene";
 import type { Scene } from "../types/Scene";
 import { SERVICE_TYPES } from "./serviceTypes";
 
@@ -13,8 +14,12 @@ export function createContainer(): Container {
   container.bind<App>(SERVICE_TYPES.App).to(App).inSingletonScope();
   container.bind<LayoutService>(SERVICE_TYPES.LayoutService).to(LayoutService).inSingletonScope();
   container
+    .bind<ResourceLoaderService>(SERVICE_TYPES.ResourceLoaderService)
+    .to(ResourceLoaderService)
+    .inSingletonScope();
+  container
     .bind<Scene>(SERVICE_TYPES.Scene)
-    .to(RotatingCubeScene)
+    .to(LostTreasureScene)
     .inSingletonScope();
   container
     .bind<WebGLRenderer>(SERVICE_TYPES.WebGLRenderer)

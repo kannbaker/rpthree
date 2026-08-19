@@ -1,22 +1,25 @@
 import { injectable } from "inversify";
-import { PerspectiveCamera, Scene as ThreeScene } from "three";
+import { Color, PerspectiveCamera, Scene as ThreeScene } from "three";
 
 import { Lighting } from "../../scene-components/Lighting";
-import { RotatingCube } from "../../scene-components/RotatingCube";
+import { PlayerCharacterComponent } from "../../scene-components/PlayerCharacterComponent";
 import type { Scene } from "../../types/Scene";
 import type { SceneComponent } from "../../types/SceneComponent";
 import { cloneResource } from "../../utils/cloneResource";
 
 @injectable()
-export class RotatingCubeScene implements Scene {
+export class LostTreasureScene implements Scene {
   private readonly scene: ThreeScene;
   private readonly mainCamera: PerspectiveCamera;
   private sceneComponents: SceneComponent[] = [];
 
   public constructor() {
     this.scene = new ThreeScene();
-    this.mainCamera = new PerspectiveCamera(75, 1, 0.1, 1000);
-    this.mainCamera.position.z = 3;
+    this.scene.background = new Color(0xa0a0a0);
+
+    this.mainCamera = new PerspectiveCamera(45, 1, 1, 2000);
+    this.mainCamera.position.set(0, 120, 220);
+    this.mainCamera.lookAt(0, 80, 0);
     this.createSceneComponents();
   }
 
@@ -73,12 +76,12 @@ export class RotatingCubeScene implements Scene {
   }
 
   private createSceneComponents(): void {
-    const rotatingCube = new RotatingCube();
-    rotatingCube.setPosition(0, 0, 0);
-
     const lighting = new Lighting();
-    lighting.setPosition(0, 20, 10);
+    lighting.setPosition(0, 200, 100);
 
-    this.sceneComponents.push(rotatingCube, lighting);
+    const playerCharacter = new PlayerCharacterComponent();
+    playerCharacter.setPosition(0, 0, 0);
+
+    this.sceneComponents.push(lighting, playerCharacter);
   }
 }
