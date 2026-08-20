@@ -3,20 +3,28 @@ import { Color, PerspectiveCamera, Scene as ThreeScene } from "three";
 
 import { GroundComponent } from "../../scene-components/GroundComponent";
 import { Lighting } from "../../scene-components/Lighting";
-import { PlayerCharacterComponent } from "../../scene-components/PlayerCharacterComponent";
+import {
+  PlayerCharacterComponent,
+  type PlayerCharacterState
+} from "../../scene-components/PlayerCharacterComponent";
+import { WalkGatherScenario } from "../../scenarios/WalkGatherScenario";
 import type { Scene } from "../../types/Scene";
 import type { SceneComponent } from "../../types/SceneComponent";
+import type { Scenario } from "../../types/Scenario";
 import { cloneResource } from "../../utils/cloneResource";
 
 @injectable()
 export class LostTreasureScene implements Scene {
   private readonly scene: ThreeScene;
   private readonly mainCamera: PerspectiveCamera;
-  private sceneComponents: SceneComponent[] = [];
+  private readonly scenario: Scenario<PlayerCharacterState>;
+  private playerCharacter: PlayerCharacterComponent | null = null;
+  private sceneComponents: SceneComponent<string>[] = [];
 
   public constructor() {
     this.scene = new ThreeScene();
     this.scene.background = new Color(0xa0a0a0);
+    this.scenario = new WalkGatherScenario();
 
     this.mainCamera = new PerspectiveCamera(45, 1, 1, 2000);
     this.mainCamera.position.set(0, 120, 220);
@@ -54,9 +62,13 @@ export class LostTreasureScene implements Scene {
     for (const sceneComponent of this.sceneComponents) {
       sceneComponent.add(this.scene);
     }
+
+    this.playerCharacter !== null && this.scenario.start(this.playerCharacter);
   }
 
   public stop(): void {
+    this.scenario.stop();
+
     for (const sceneComponent of this.sceneComponents) {
       sceneComponent.remove(this.scene);
     }
@@ -85,6 +97,7 @@ export class LostTreasureScene implements Scene {
 
     const playerCharacter = new PlayerCharacterComponent();
     playerCharacter.setPosition(0, 0, 0);
+    this.playerCharacter = playerCharacter;
 
     this.sceneComponents.push(ground, lighting, playerCharacter);
   }

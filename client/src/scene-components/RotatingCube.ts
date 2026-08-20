@@ -2,8 +2,11 @@ import { BoxGeometry, Mesh, MeshPhongMaterial, type Scene } from "three";
 
 import type { SceneComponent } from "../types/SceneComponent";
 
-export class RotatingCube implements SceneComponent {
+type RotatingCubeState = "idle";
+
+export class RotatingCube implements SceneComponent<RotatingCubeState> {
   private readonly cube: Mesh;
+  private state: RotatingCubeState = "idle";
 
   public constructor() {
     const geometry = new BoxGeometry(1, 1, 1);
@@ -28,6 +31,14 @@ export class RotatingCube implements SceneComponent {
 
   public setPosition(x: number, y: number, z: number): void {
     this.cube.position.set(x, y, z);
+  }
+
+  public transition(state: RotatingCubeState): void {
+    this.state = state;
+  }
+
+  public getState(): RotatingCubeState {
+    return this.state;
   }
 
   public tick(deltaTime: number): void {

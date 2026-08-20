@@ -11,7 +11,7 @@ import { cloneResource } from "../../utils/cloneResource";
 export class RotatingCubeScene implements Scene {
   private readonly scene: ThreeScene;
   private readonly mainCamera: PerspectiveCamera;
-  private sceneComponents: SceneComponent[] = [];
+  private sceneComponents: SceneComponent<string>[] = [];
 
   public constructor() {
     this.scene = new ThreeScene();

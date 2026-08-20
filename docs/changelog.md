@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.6
+
+- added `Scenario` abstraction with `WalkGatherScenario`
+- added player states `idle`, `walk`, `gather-objects`
+- added `look-around.fbx` as idle animation source
+- switched player transitions to `transition(...)` with `crossFade`
+- routed non-idle player transitions through intermediate `idle`
+- tuned idle and return transition durations for smoother animation changes
+
 ## v1.0.5
 
 - added `GroundComponent` to `LostTreasureScene`

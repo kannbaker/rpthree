@@ -11,10 +11,13 @@ import {
 
 import type { SceneComponent } from "../types/SceneComponent";
 
-export class GroundComponent implements SceneComponent {
+type GroundState = "idle";
+
+export class GroundComponent implements SceneComponent<GroundState> {
   private static readonly GROUND_TEXTURE_SOURCE = "/static/losttreasure/textures/ground-grid.svg";
   private readonly ground: Mesh;
   private readonly position = new Vector3();
+  private state: GroundState = "idle";
 
   public constructor() {
     this.ground = new Mesh(
@@ -58,5 +61,13 @@ export class GroundComponent implements SceneComponent {
   public setPosition(x: number, y: number, z: number): void {
     this.position.set(x, y, z);
     this.ground.position.copy(this.position);
+  }
+
+  public transition(state: GroundState): void {
+    this.state = state;
+  }
+
+  public getState(): GroundState {
+    return this.state;
   }
 }

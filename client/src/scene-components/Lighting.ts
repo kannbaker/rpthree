@@ -2,9 +2,12 @@ import { AmbientLight, DirectionalLight, type Scene } from "three";
 
 import type { SceneComponent } from "../types/SceneComponent";
 
-export class Lighting implements SceneComponent {
+type LightingState = "idle";
+
+export class Lighting implements SceneComponent<LightingState> {
   private readonly directionalLight: DirectionalLight;
   private readonly ambientLight: AmbientLight;
+  private state: LightingState = "idle";
 
   public constructor() {
     this.directionalLight = new DirectionalLight(0xffffff, 2.2);
@@ -39,6 +42,14 @@ export class Lighting implements SceneComponent {
 
   public setPosition(x: number, y: number, z: number): void {
     this.directionalLight.position.set(x, y, z);
+  }
+
+  public transition(state: LightingState): void {
+    this.state = state;
+  }
+
+  public getState(): LightingState {
+    return this.state;
   }
 
   public tick(_deltaTime: number): void {}
