@@ -1,10 +1,11 @@
 import { injectable } from "inversify";
-import { type Group } from "three";
+import { TextureLoader, type Group, type Texture } from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
 @injectable()
 export class ResourceLoaderService {
   private readonly fbxLoader = new FBXLoader();
+  private readonly textureLoader = new TextureLoader();
   private readonly pendingResources = new Map<string, Promise<unknown>>();
   private readonly loadedResources = new Map<string, unknown>();
 
@@ -47,12 +48,36 @@ export class ResourceLoaderService {
       return this.loadFbx(source);
     }
 
+    if (
+      source.endsWith(".png") ||
+      source.endsWith(".jpg") ||
+      source.endsWith(".jpeg") ||
+      source.endsWith(".svg")
+    ) {
+      return this.loadTexture(source);
+    }
+
     throw new Error(`Unsupported resource type: ${source}`);
   }
 
   private loadFbx(path: string): Promise<Group> {
     return new Promise<Group>((resolvePromise, rejectPromise) => {
       this.fbxLoader.load(
+        path,
+        (asset) => {
+          resolvePromise(asset);
+        },
+        undefined,
+        (error) => {
+          rejectPromise(error);
+        }
+      );
+    });
+  }
+
+  private loadTexture(path: string): Promise<Texture> {
+    return new Promise<Texture>((resolvePromise, rejectPromise) => {
+      this.textureLoader.load(
         path,
         (asset) => {
           resolvePromise(asset);

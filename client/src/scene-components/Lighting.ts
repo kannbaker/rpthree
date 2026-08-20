@@ -7,8 +7,18 @@ export class Lighting implements SceneComponent {
   private readonly ambientLight: AmbientLight;
 
   public constructor() {
-    this.directionalLight = new DirectionalLight(0xffffff, 1.5);
-    this.ambientLight = new AmbientLight(0x707070);
+    this.directionalLight = new DirectionalLight(0xffffff, 2.2);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.set(2048, 2048);
+    this.directionalLight.shadow.camera.near = 1;
+    this.directionalLight.shadow.camera.far = 500;
+    this.directionalLight.shadow.camera.top = 180;
+    this.directionalLight.shadow.camera.bottom = -180;
+    this.directionalLight.shadow.camera.left = -180;
+    this.directionalLight.shadow.camera.right = 180;
+    this.directionalLight.shadow.bias = -0.0002;
+
+    this.ambientLight = new AmbientLight(0xffffff, 0.45);
   }
 
   public add(scene: Scene): void {

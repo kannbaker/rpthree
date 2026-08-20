@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.5
+
+- added `GroundComponent` to `LostTreasureScene`
+- added textured ground via `ResourceLoaderService` image loading
+- enabled renderer shadows and directional light shadow setup
+- tuned ground texture tiling for a less dense grid
+
 ## v1.0.4
 
 - added default character animation playback via `AnimationMixer`

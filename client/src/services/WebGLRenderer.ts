@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { WebGLRenderer as ThreeWebGLRenderer } from "three";
+import { PCFSoftShadowMap, WebGLRenderer as ThreeWebGLRenderer } from "three";
 
 import { SERVICE_TYPES } from "../container/serviceTypes";
 import type { ResourceLoaderService } from "./ResourceLoaderService";
@@ -20,6 +20,8 @@ export class WebGLRenderer {
     @inject(SERVICE_TYPES.StatsService) private readonly statsService: StatsService
   ) {
     this.renderer = new ThreeWebGLRenderer({ antialias: true });
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = PCFSoftShadowMap;
   }
 
   public async start(mountNode: HTMLElement): Promise<void> {

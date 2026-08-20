@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { Color, PerspectiveCamera, Scene as ThreeScene } from "three";
 
+import { GroundComponent } from "../../scene-components/GroundComponent";
 import { Lighting } from "../../scene-components/Lighting";
 import { PlayerCharacterComponent } from "../../scene-components/PlayerCharacterComponent";
 import type { Scene } from "../../types/Scene";
@@ -76,12 +77,15 @@ export class LostTreasureScene implements Scene {
   }
 
   private createSceneComponents(): void {
+    const ground = new GroundComponent();
+    ground.setPosition(0, 0, 0);
+
     const lighting = new Lighting();
     lighting.setPosition(0, 200, 100);
 
     const playerCharacter = new PlayerCharacterComponent();
     playerCharacter.setPosition(0, 0, 0);
 
-    this.sceneComponents.push(lighting, playerCharacter);
+    this.sceneComponents.push(ground, lighting, playerCharacter);
   }
 }
