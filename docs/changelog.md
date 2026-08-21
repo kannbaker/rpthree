@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.9
+
+- moved the main camera into `MainCameraComponent`
+- replaced `FollowPlayerCameraScenario` with `FollowPlayerScenario`
+- removed `tick(...)` from the `Scenario` interface and all scenario implementations
+
 ## v1.0.8
 
 - added forward movement during `walk` based on the player character facing direction

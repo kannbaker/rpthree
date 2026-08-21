@@ -47,6 +47,18 @@ export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationS
     this.object.position.copy(this.position);
   }
 
+  public getWorldPosition(target: Vector3): Vector3 {
+    return this.object.getWorldPosition(target);
+  }
+
+  public getForward(target: Vector3): Vector3 {
+    return target
+      .copy(PlayerCharacterComponent.FORWARD)
+      .applyQuaternion(this.object.quaternion)
+      .setY(0)
+      .normalize();
+  }
+
   public rotateY(radians: number): void {
     this.object.rotation.y += radians;
   }
@@ -68,11 +80,7 @@ export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationS
       return;
     }
 
-    this.walkDirection
-      .copy(PlayerCharacterComponent.FORWARD)
-      .applyQuaternion(this.object.quaternion)
-      .setY(0)
-      .normalize();
+    this.getForward(this.walkDirection);
 
     this.object.position.addScaledVector(
       this.walkDirection,
