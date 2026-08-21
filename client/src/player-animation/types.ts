@@ -1,9 +1,9 @@
 import type { AnimationAction } from "three";
 
-export type PlayerAnimationState = "idle" | "walk" | "loot";
+export type PlayerAnimationState = "stand" | "walk" | "loot";
 
 export interface PlayerActions {
-  idle: AnimationAction;
+  stand: AnimationAction;
   walk: AnimationAction;
   loot: AnimationAction;
 }

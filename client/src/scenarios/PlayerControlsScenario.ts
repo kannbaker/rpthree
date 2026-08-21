@@ -1,29 +1,33 @@
-import type { PlayerAnimationState } from "../player-animation/types";
 import type { KeyboardEventListener, KeyboardInputEvent } from "../services/KeyboardEvents";
 import type { PlayerCharacterComponent } from "../scene-components/PlayerCharacterComponent";
 import type { KeyboardEvents } from "../services/KeyboardEvents";
 import type { Scenario } from "../types/Scenario";
 
-type MoveState = "idle" | "move-forward" | "turning" | "looting";
+type PlayerAnimationControlState = "stand" | "walk" | "loot";
+type PlayerTurnControlState = "none" | "left" | "right";
 
 export class PlayerControlsScenario implements Scenario<PlayerCharacterComponent> {
   private playerCharacter: PlayerCharacterComponent | null = null;
   private readonly pressedKeys = new Set<string>();
-  private currentState: MoveState = "idle";
+  private currentAnimationState: PlayerAnimationControlState = "stand";
+  private currentTurnState: PlayerTurnControlState = "none";
 
   public constructor(private readonly keyboardEvents: KeyboardEvents) {}
 
   public start(playerCharacter: PlayerCharacterComponent): void {
     this.stop();
     this.playerCharacter = playerCharacter;
+    this.playerCharacter.setLootFinishedListener(this.handleLootFinished);
     this.keyboardEvents.subscribe(this.handleKeyboardEvent);
-    this.playerCharacter.transition("idle");
+    this.playerCharacter.stand();
   }
 
   public stop(): void {
     this.keyboardEvents.unsubscribe(this.handleKeyboardEvent);
     this.pressedKeys.clear();
-    this.currentState = "idle";
+    this.currentAnimationState = "stand";
+    this.currentTurnState = "none";
+    this.playerCharacter?.setLootFinishedListener(null);
     this.playerCharacter = null;
   }
 
@@ -60,47 +64,80 @@ export class PlayerControlsScenario implements Scenario<PlayerCharacterComponent
   }
 
   private syncState(): void {
-    this.setState(this.resolveState());
+    this.setAnimationState(this.resolveAnimationState());
+    this.setTurnState(this.resolveTurnState());
   }
 
-  private resolveState(): MoveState {
+  private resolveAnimationState(): PlayerAnimationControlState {
     if (this.pressedKeys.has("KeyS")) {
-      return "looting";
+      return "loot";
+    }
+
+    if (this.currentAnimationState === "loot" && !this.pressedKeys.has("KeyW")) {
+      return "loot";
     }
 
     if (this.pressedKeys.has("KeyW")) {
-      return "move-forward";
+      return "walk";
     }
 
-    if (this.pressedKeys.has("KeyA") || this.pressedKeys.has("KeyD")) {
-      return "turning";
-    }
-
-    if (this.currentState === "looting") {
-      return "turning";
-    }
-
-    return "idle";
+    return "stand";
   }
 
-  private setState(nextState: MoveState): void {
-    if (this.playerCharacter === null || this.currentState === nextState) {
+  private resolveTurnState(): PlayerTurnControlState {
+    if (this.pressedKeys.has("KeyA")) {
+      return "left";
+    }
+
+    if (this.pressedKeys.has("KeyD")) {
+      return "right";
+    }
+
+    return "none";
+  }
+
+  private setAnimationState(nextState: PlayerAnimationControlState): void {
+    if (this.playerCharacter === null || this.currentAnimationState === nextState) {
       return;
     }
 
-    this.currentState = nextState;
+    this.currentAnimationState = nextState;
 
     switch (nextState) {
-      case "idle":
-      case "turning":
-        this.playerCharacter.transition("idle");
+      case "stand":
+        this.playerCharacter.stand();
         return;
-      case "move-forward":
-        this.playerCharacter.transition("walk");
+      case "walk":
+        this.playerCharacter.walk();
         return;
-      case "looting":
-        this.playerCharacter.transition("loot");
+      case "loot":
+        this.playerCharacter.loot();
         return;
     }
   }
+
+  private setTurnState(nextState: PlayerTurnControlState): void {
+    if (this.playerCharacter === null || this.currentTurnState === nextState) {
+      return;
+    }
+
+    this.currentTurnState = nextState;
+
+    switch (nextState) {
+      case "none":
+        this.playerCharacter.stopTurning();
+        return;
+      case "left":
+        this.playerCharacter.turnLeft();
+        return;
+      case "right":
+        this.playerCharacter.turnRight();
+        return;
+    }
+  }
+
+  private readonly handleLootFinished = (): void => {
+    this.currentAnimationState = "stand";
+    this.syncState();
+  };
 }

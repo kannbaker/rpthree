@@ -1,4 +1,6 @@
 import {
+  LoopRepeat,
+  type AnimationAction,
   Object3D,
   Vector3,
   type AnimationMixer,
@@ -8,8 +10,18 @@ import {
 import type { PlayerActions, PlayerAnimationState } from "../player-animation/types";
 import type { SceneComponent } from "../types/SceneComponent";
 
+type PlayerCharacterTurnState = "none" | "left" | "right";
+
 export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationState> {
+  private static readonly TURN_SPEED = Math.PI;
+  private static readonly WALK_SPEED = 130;
+  private static readonly FORWARD = new Vector3(0, 0, 1);
   private readonly position = new Vector3();
+  private readonly walkDirection = new Vector3();
+  private lootFinishedListener: (() => void) | null = null;
+  private currentAnimationState: PlayerAnimationState = "stand";
+  private turnState: PlayerCharacterTurnState = "none";
+  private activeAction: AnimationAction | null = null;
 
   public constructor(
     private readonly object: Object3D,
@@ -35,38 +47,114 @@ export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationS
     this.object.position.copy(this.position);
   }
 
+  public rotateY(radians: number): void {
+    this.object.rotation.y += radians;
+  }
+
+  public setLootFinishedListener(listener: (() => void) | null): void {
+    this.lootFinishedListener = listener;
+  }
+
   public tick(deltaTime: number): void {
     this.mixer.update(deltaTime);
+
+    if (this.turnState === "left") {
+      this.object.rotation.y += PlayerCharacterComponent.TURN_SPEED * deltaTime;
+    } else if (this.turnState === "right") {
+      this.object.rotation.y -= PlayerCharacterComponent.TURN_SPEED * deltaTime;
+    }
+
+    if (this.currentAnimationState !== "walk") {
+      return;
+    }
+
+    this.walkDirection
+      .copy(PlayerCharacterComponent.FORWARD)
+      .applyQuaternion(this.object.quaternion)
+      .setY(0)
+      .normalize();
+
+    this.object.position.addScaledVector(
+      this.walkDirection,
+      PlayerCharacterComponent.WALK_SPEED * deltaTime
+    );
+    this.position.copy(this.object.position);
   }
 
   public transition(state: PlayerAnimationState): void {
     switch (state) {
-      case "idle":
-        this.startIdle();
+      case "stand":
+        this.stand();
         return;
       case "walk":
-        this.startWalk();
+        this.walk();
         return;
       case "loot":
-        this.startLoot();
+        this.loot();
         return;
     }
   }
 
+  public stand(): void {
+    if (this.currentAnimationState === "stand") {
+      this.ensureIdlePlaying();
+      return;
+    }
+
+    this.currentAnimationState = "stand";
+    this.startIdle();
+  }
+
+  public turnLeft(): void {
+    this.turnState = "left";
+  }
+
+  public turnRight(): void {
+    this.turnState = "right";
+  }
+
+  public stopTurning(): void {
+    this.turnState = "none";
+  }
+
+  public walk(): void {
+    if (this.currentAnimationState === "walk") {
+      return;
+    }
+
+    this.currentAnimationState = "walk";
+    this.startWalk();
+  }
+
+  public loot(): void {
+    if (this.currentAnimationState === "loot") {
+      return;
+    }
+
+    this.currentAnimationState = "loot";
+    this.startLoot();
+  }
+
   private startIdle(): void {
-    const idleAction = this.actions.idle;
+    const idleAction = this.actions.stand;
     this.stopAllActions();
     idleAction.reset();
+    idleAction.setLoop(LoopRepeat, Infinity);
+    idleAction.clampWhenFinished = false;
     idleAction.paused = false;
     idleAction.play();
+    this.activeAction = idleAction;
   }
 
   private startWalk(): void {
     const walkAction = this.actions.walk;
     this.stopAllActions();
     walkAction.reset();
+    walkAction.setLoop(LoopRepeat, Infinity);
+    walkAction.clampWhenFinished = false;
     walkAction.paused = false;
     walkAction.play();
+    this.activeAction = walkAction;
   }
 
   private startLoot(): void {
@@ -75,12 +163,22 @@ export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationS
     lootAction.reset();
     lootAction.paused = false;
     lootAction.play();
+    this.activeAction = lootAction;
   }
 
   private stopAllActions(): void {
-    this.actions.idle.stop();
+    this.actions.stand.stop();
     this.actions.walk.stop();
     this.actions.loot.stop();
+    this.activeAction = null;
+  }
+
+  private ensureIdlePlaying(): void {
+    if (this.activeAction === this.actions.stand && this.actions.stand.isRunning()) {
+      return;
+    }
+
+    this.startIdle();
   }
 
   private readonly handleFinished = (event: { action?: unknown }): void => {
@@ -88,6 +186,8 @@ export class PlayerCharacterComponent implements SceneComponent<PlayerAnimationS
       return;
     }
 
+    this.currentAnimationState = "stand";
     this.startIdle();
+    this.lootFinishedListener?.();
   };
 }

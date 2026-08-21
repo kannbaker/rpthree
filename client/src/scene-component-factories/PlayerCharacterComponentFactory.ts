@@ -45,7 +45,7 @@ export class PlayerCharacterComponentFactory implements SceneComponentFactory<Pl
 
     const idleAction = mixer.clipAction(idleClip, character);
     idleAction.setDuration(PlayerCharacterComponentFactory.IDLE_DURATION);
-    actions.idle = idleAction;
+    actions.stand = idleAction;
 
     actions.walk = mixer.clipAction(walkClip, character);
 

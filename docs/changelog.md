@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.8
+
+- added forward movement during `walk` based on the player character facing direction
+
 ## v1.0.7
 
 - split `SceneComponent` and `SceneComponentFactory`
