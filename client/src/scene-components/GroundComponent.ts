@@ -2,8 +2,6 @@ import {
   Mesh,
   MeshStandardMaterial,
   PlaneGeometry,
-  RepeatWrapping,
-  SRGBColorSpace,
   type Texture,
   Vector3,
   type Scene
@@ -14,34 +12,16 @@ import type { SceneComponent } from "../types/SceneComponent";
 type GroundState = "idle";
 
 export class GroundComponent implements SceneComponent<GroundState> {
-  private static readonly GROUND_TEXTURE_SOURCE = "/static/losttreasure/textures/ground-grid.svg";
   private readonly ground: Mesh;
   private readonly position = new Vector3();
-  private state: GroundState = "idle";
 
-  public constructor() {
+  public constructor(groundTexture: Texture) {
     this.ground = new Mesh(
       new PlaneGeometry(600, 600),
       new MeshStandardMaterial({ color: 0x8c9b75 })
     );
     this.ground.rotation.x = -Math.PI / 2;
     this.ground.receiveShadow = true;
-  }
-
-  public getSources(): string[] {
-    return [GroundComponent.GROUND_TEXTURE_SOURCE];
-  }
-
-  public build(resources: unknown[]): void {
-    const [groundTexture] = resources as Array<Texture | undefined>;
-    if (groundTexture === undefined) {
-      throw new Error(`Resource not loaded: ${GroundComponent.GROUND_TEXTURE_SOURCE}`);
-    }
-
-    groundTexture.colorSpace = SRGBColorSpace;
-    groundTexture.wrapS = RepeatWrapping;
-    groundTexture.wrapT = RepeatWrapping;
-    groundTexture.repeat.set(6, 6);
 
     const material = this.ground.material as MeshStandardMaterial;
     material.map = groundTexture;
@@ -64,10 +44,6 @@ export class GroundComponent implements SceneComponent<GroundState> {
   }
 
   public transition(state: GroundState): void {
-    this.state = state;
-  }
-
-  public getState(): GroundState {
-    return this.state;
+    void state;
   }
 }

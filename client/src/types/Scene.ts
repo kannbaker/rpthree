@@ -1,8 +1,9 @@
 import type { PerspectiveCamera, Scene as ThreeScene } from "three";
+import type { ResourceFactory } from "../services/ResourceFactory";
 
 export interface Scene {
   getSources(): string[];
-  build(resources: unknown[]): Promise<void>;
+  build(resourceFactory: ResourceFactory): Promise<void>;
   start(): void;
   stop(): void;
   tick(deltaTime: number): void;

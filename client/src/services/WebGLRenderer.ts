@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { PCFSoftShadowMap, WebGLRenderer as ThreeWebGLRenderer } from "three";
 
 import { SERVICE_TYPES } from "../container/serviceTypes";
-import type { ResourceLoaderService } from "./ResourceLoaderService";
+import type { ResourceFactoryBuilder } from "./ResourceFactoryBuilder";
 import type { Scene } from "../types/Scene";
 import type { StatsService } from "./StatsService";
 
@@ -14,8 +14,8 @@ export class WebGLRenderer {
   private readonly renderer: ThreeWebGLRenderer;
 
   public constructor(
-    @inject(SERVICE_TYPES.ResourceLoaderService)
-    private readonly resourceLoaderService: ResourceLoaderService,
+    @inject(SERVICE_TYPES.ResourceFactoryBuilder)
+    private readonly resourceFactoryBuilder: ResourceFactoryBuilder,
     @inject(SERVICE_TYPES.Scene) private readonly scene: Scene,
     @inject(SERVICE_TYPES.StatsService) private readonly statsService: StatsService
   ) {
@@ -27,9 +27,8 @@ export class WebGLRenderer {
   public async start(mountNode: HTMLElement): Promise<void> {
     this.mountNode = mountNode;
     const sources = this.scene.getSources();
-
-    await this.resourceLoaderService.load(sources);
-    await this.scene.build(this.resourceLoaderService.get(sources));
+    const resourceFactory = await this.resourceFactoryBuilder.build(sources);
+    await this.scene.build(resourceFactory);
 
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.updateViewport();

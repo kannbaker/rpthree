@@ -7,7 +7,6 @@ type LightingState = "idle";
 export class Lighting implements SceneComponent<LightingState> {
   private readonly directionalLight: DirectionalLight;
   private readonly ambientLight: AmbientLight;
-  private state: LightingState = "idle";
 
   public constructor() {
     this.directionalLight = new DirectionalLight(0xffffff, 2.2);
@@ -29,12 +28,6 @@ export class Lighting implements SceneComponent<LightingState> {
     scene.add(this.ambientLight);
   }
 
-  public getSources(): string[] {
-    return [];
-  }
-
-  public build(_resources: unknown[]): void {}
-
   public remove(scene: Scene): void {
     scene.remove(this.directionalLight);
     scene.remove(this.ambientLight);
@@ -45,11 +38,7 @@ export class Lighting implements SceneComponent<LightingState> {
   }
 
   public transition(state: LightingState): void {
-    this.state = state;
-  }
-
-  public getState(): LightingState {
-    return this.state;
+    void state;
   }
 
   public tick(_deltaTime: number): void {}

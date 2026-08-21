@@ -1,59 +1,62 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { Color, PerspectiveCamera, Scene as ThreeScene } from "three";
 
+import { SERVICE_TYPES } from "../../container/serviceTypes";
+import { GroundComponentFactory } from "../../scene-component-factories/GroundComponentFactory";
+import { PlayerCharacterComponentFactory } from "../../scene-component-factories/PlayerCharacterComponentFactory";
 import { GroundComponent } from "../../scene-components/GroundComponent";
 import { Lighting } from "../../scene-components/Lighting";
-import {
-  PlayerCharacterComponent,
-  type PlayerCharacterState
-} from "../../scene-components/PlayerCharacterComponent";
-import { WalkGatherScenario } from "../../scenarios/WalkGatherScenario";
+import { PlayerCharacterComponent } from "../../scene-components/PlayerCharacterComponent";
+import { PlayerControlsScenario } from "../../scenarios/PlayerControlsScenario";
+import type { KeyboardEvents } from "../../services/KeyboardEvents";
+import type { ResourceFactory } from "../../services/ResourceFactory";
 import type { Scene } from "../../types/Scene";
 import type { SceneComponent } from "../../types/SceneComponent";
+import type { SceneComponentFactory } from "../../types/SceneComponentFactory";
 import type { Scenario } from "../../types/Scenario";
-import { cloneResource } from "../../utils/cloneResource";
 
 @injectable()
 export class LostTreasureScene implements Scene {
   private readonly scene: ThreeScene;
   private readonly mainCamera: PerspectiveCamera;
-  private readonly scenario: Scenario<PlayerCharacterState>;
+  private readonly scenario: Scenario<PlayerCharacterComponent>;
+  private readonly groundFactory: SceneComponentFactory<GroundComponent>;
+  private readonly playerCharacterFactory: SceneComponentFactory<PlayerCharacterComponent>;
   private playerCharacter: PlayerCharacterComponent | null = null;
   private sceneComponents: SceneComponent<string>[] = [];
 
-  public constructor() {
+  public constructor(
+    @inject(SERVICE_TYPES.KeyboardEvents) keyboardEvents: KeyboardEvents
+  ) {
     this.scene = new ThreeScene();
     this.scene.background = new Color(0xa0a0a0);
-    this.scenario = new WalkGatherScenario();
+    this.scenario = new PlayerControlsScenario(keyboardEvents);
+    this.groundFactory = new GroundComponentFactory();
+    this.playerCharacterFactory = new PlayerCharacterComponentFactory();
 
     this.mainCamera = new PerspectiveCamera(45, 1, 1, 2000);
     this.mainCamera.position.set(0, 120, 220);
     this.mainCamera.lookAt(0, 80, 0);
-    this.createSceneComponents();
   }
 
   public getSources(): string[] {
-    const sources: string[] = [];
-
-    for (const sceneComponent of this.sceneComponents) {
-      sources.push(...sceneComponent.getSources());
-    }
-
-    return sources;
+    return [
+      ...this.groundFactory.getSources(),
+      ...this.playerCharacterFactory.getSources()
+    ];
   }
 
-  public async build(resources: unknown[]): Promise<void> {
-    let resourceIndex = 0;
+  public async build(resourceFactory: ResourceFactory): Promise<void> {
+    const ground = this.groundFactory.build(resourceFactory);
+    ground.setPosition(0, 0, 0);
+    const playerCharacter = this.playerCharacterFactory.build(resourceFactory);
+    playerCharacter.setPosition(0, 0, 0);
 
-    for (const sceneComponent of this.sceneComponents) {
-      const componentResourceCount = sceneComponent.getSources().length;
-      const componentResources = resources
-        .slice(resourceIndex, resourceIndex + componentResourceCount)
-        .map((resource) => cloneResource(resource));
+    const lighting = new Lighting();
+    lighting.setPosition(0, 200, 100);
 
-      sceneComponent.build(componentResources);
-      resourceIndex += componentResourceCount;
-    }
+    this.playerCharacter = playerCharacter;
+    this.sceneComponents = [ground, lighting, playerCharacter];
   }
 
   public start(): void {
@@ -63,7 +66,7 @@ export class LostTreasureScene implements Scene {
       sceneComponent.add(this.scene);
     }
 
-    this.playerCharacter !== null && this.scenario.start(this.playerCharacter);
+    this.scenario.start(this.playerCharacter!);
   }
 
   public stop(): void {
@@ -88,17 +91,4 @@ export class LostTreasureScene implements Scene {
     return this.mainCamera;
   }
 
-  private createSceneComponents(): void {
-    const ground = new GroundComponent();
-    ground.setPosition(0, 0, 0);
-
-    const lighting = new Lighting();
-    lighting.setPosition(0, 200, 100);
-
-    const playerCharacter = new PlayerCharacterComponent();
-    playerCharacter.setPosition(0, 0, 0);
-    this.playerCharacter = playerCharacter;
-
-    this.sceneComponents.push(ground, lighting, playerCharacter);
-  }
 }

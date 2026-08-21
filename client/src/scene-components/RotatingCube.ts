@@ -6,7 +6,6 @@ type RotatingCubeState = "idle";
 
 export class RotatingCube implements SceneComponent<RotatingCubeState> {
   private readonly cube: Mesh;
-  private state: RotatingCubeState = "idle";
 
   public constructor() {
     const geometry = new BoxGeometry(1, 1, 1);
@@ -19,12 +18,6 @@ export class RotatingCube implements SceneComponent<RotatingCubeState> {
     scene.add(this.cube);
   }
 
-  public getSources(): string[] {
-    return [];
-  }
-
-  public build(_resources: unknown[]): void {}
-
   public remove(scene: Scene): void {
     scene.remove(this.cube);
   }
@@ -34,11 +27,7 @@ export class RotatingCube implements SceneComponent<RotatingCubeState> {
   }
 
   public transition(state: RotatingCubeState): void {
-    this.state = state;
-  }
-
-  public getState(): RotatingCubeState {
-    return this.state;
+    void state;
   }
 
   public tick(deltaTime: number): void {

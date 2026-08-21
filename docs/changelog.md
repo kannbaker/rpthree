@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.7
+
+- split `SceneComponent` and `SceneComponentFactory`
+- added `GroundComponentFactory` and `PlayerCharacterComponentFactory`
+- replaced `ResourceLoaderService` with `ResourceFactoryBuilder` and `ResourceFactory`
+- `ResourceFactory` now returns cloned resources by source key
+- moved player animation playback back into `PlayerCharacterComponent`
+- simplified `PlayerControlsScenario` to keyboard input state routing only
+- renamed player animation state `gather-objects` to `loot`
+- updated client architecture docs with current runtime and scene lifecycle diagrams
+
 ## v1.0.6
 
 - added `Scenario` abstraction with `WalkGatherScenario`

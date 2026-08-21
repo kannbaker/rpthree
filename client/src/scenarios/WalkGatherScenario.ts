@@ -1,14 +1,15 @@
-import type { PlayerCharacterState } from "../scene-components/PlayerCharacterComponent";
+import type { PlayerAnimationState } from "../player-animation/types";
 import type { Scenario } from "../types/Scenario";
-import type { SceneComponent } from "../types/SceneComponent";
 
-export class WalkGatherScenario implements Scenario<PlayerCharacterState> {
+export class WalkGatherScenario implements Scenario<{
+  transition(state: PlayerAnimationState): void;
+}> {
   private static readonly STEP_TIMEOUT_MS = 6000;
-  private nextState: PlayerCharacterState = "walk";
-  private sceneComponent: SceneComponent<PlayerCharacterState> | null = null;
+  private nextState: PlayerAnimationState = "walk";
+  private sceneComponent: { transition(state: PlayerAnimationState): void } | null = null;
   private timeoutId: number | null = null;
 
-  public start(sceneComponent: SceneComponent<PlayerCharacterState>): void {
+  public start(sceneComponent: { transition(state: PlayerAnimationState): void }): void {
     this.stop();
     this.sceneComponent = sceneComponent;
     this.nextState = "walk";
@@ -31,7 +32,7 @@ export class WalkGatherScenario implements Scenario<PlayerCharacterState> {
       }
 
       this.sceneComponent.transition(this.nextState);
-      this.nextState = this.nextState === "walk" ? "gather-objects" : "walk";
+      this.nextState = this.nextState === "walk" ? "loot" : "walk";
       this.scheduleNextTransition();
     }, WalkGatherScenario.STEP_TIMEOUT_MS);
   }

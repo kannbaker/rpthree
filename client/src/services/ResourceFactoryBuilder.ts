@@ -2,30 +2,18 @@ import { injectable } from "inversify";
 import { TextureLoader, type Group, type Texture } from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
+import { ResourceFactory } from "./ResourceFactory";
+
 @injectable()
-export class ResourceLoaderService {
+export class ResourceFactoryBuilder {
   private readonly fbxLoader = new FBXLoader();
   private readonly textureLoader = new TextureLoader();
   private readonly pendingResources = new Map<string, Promise<unknown>>();
   private readonly loadedResources = new Map<string, unknown>();
 
-  public async load(sources: string[]): Promise<void> {
+  public async build(sources: string[]): Promise<ResourceFactory> {
     await Promise.all(sources.map((source) => this.loadSource(source)));
-  }
-
-  public get(sources: string[]): unknown[] {
-    const resources: unknown[] = [];
-
-    for (const source of sources) {
-      const resource = this.loadedResources.get(source);
-      if (resource === undefined) {
-        throw new Error(`Resource not loaded: ${source}`);
-      }
-
-      resources.push(resource);
-    }
-
-    return resources;
+    return new ResourceFactory(this.loadedResources);
   }
 
   private async loadSource(source: string): Promise<void> {

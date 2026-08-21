@@ -3,9 +3,9 @@ import { PerspectiveCamera, Scene as ThreeScene } from "three";
 
 import { Lighting } from "../../scene-components/Lighting";
 import { RotatingCube } from "../../scene-components/RotatingCube";
+import type { ResourceFactory } from "../../services/ResourceFactory";
 import type { Scene } from "../../types/Scene";
 import type { SceneComponent } from "../../types/SceneComponent";
-import { cloneResource } from "../../utils/cloneResource";
 
 @injectable()
 export class RotatingCubeScene implements Scene {
@@ -21,28 +21,10 @@ export class RotatingCubeScene implements Scene {
   }
 
   public getSources(): string[] {
-    const sources: string[] = [];
-
-    for (const sceneComponent of this.sceneComponents) {
-      sources.push(...sceneComponent.getSources());
-    }
-
-    return sources;
+    return [];
   }
 
-  public async build(resources: unknown[]): Promise<void> {
-    let resourceIndex = 0;
-
-    for (const sceneComponent of this.sceneComponents) {
-      const componentResourceCount = sceneComponent.getSources().length;
-      const componentResources = resources
-        .slice(resourceIndex, resourceIndex + componentResourceCount)
-        .map((resource) => cloneResource(resource));
-
-      sceneComponent.build(componentResources);
-      resourceIndex += componentResourceCount;
-    }
-  }
+  public async build(_resourceFactory: ResourceFactory): Promise<void> {}
 
   public start(): void {
     this.scene.clear();

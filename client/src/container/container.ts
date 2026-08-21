@@ -1,8 +1,9 @@
 import { Container } from "inversify";
 
 import { App } from "../app/App";
+import { KeyboardEvents } from "../services/KeyboardEvents";
 import { LayoutService } from "../services/LayoutService";
-import { ResourceLoaderService } from "../services/ResourceLoaderService";
+import { ResourceFactoryBuilder } from "../services/ResourceFactoryBuilder";
 import { StatsService } from "../services/StatsService";
 import { WebGLRenderer } from "../services/WebGLRenderer";
 import { LostTreasureScene } from "../scenes/lost-treasure/LostTreasureScene";
@@ -13,10 +14,11 @@ export function createContainer(): Container {
   const container = new Container();
 
   container.bind<App>(SERVICE_TYPES.App).to(App).inSingletonScope();
+  container.bind<KeyboardEvents>(SERVICE_TYPES.KeyboardEvents).to(KeyboardEvents).inSingletonScope();
   container.bind<LayoutService>(SERVICE_TYPES.LayoutService).to(LayoutService).inSingletonScope();
   container
-    .bind<ResourceLoaderService>(SERVICE_TYPES.ResourceLoaderService)
-    .to(ResourceLoaderService)
+    .bind<ResourceFactoryBuilder>(SERVICE_TYPES.ResourceFactoryBuilder)
+    .to(ResourceFactoryBuilder)
     .inSingletonScope();
   container.bind<StatsService>(SERVICE_TYPES.StatsService).to(StatsService).inSingletonScope();
   container
