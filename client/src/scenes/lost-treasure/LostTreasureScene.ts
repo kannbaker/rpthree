@@ -9,8 +9,10 @@ import { Lighting } from "../../scene-components/Lighting";
 import { MainCameraComponent } from "../../scene-components/MainCameraComponent";
 import { PlayerCharacterComponent } from "../../scene-components/PlayerCharacterComponent";
 import { FollowPlayerScenario } from "../../scenarios/FollowPlayerScenario";
+import { PlayerCameraControlsScenario } from "../../scenarios/PlayerCameraControlsScenario";
 import { PlayerControlsScenario } from "../../scenarios/PlayerControlsScenario";
 import type { KeyboardEvents } from "../../services/KeyboardEvents";
+import type { MouseEvents } from "../../services/MouseEvents";
 import type { ResourceFactory } from "../../services/ResourceFactory";
 import type { Scene } from "../../types/Scene";
 import type { SceneComponent } from "../../types/SceneComponent";
@@ -22,6 +24,7 @@ export class LostTreasureScene implements Scene {
   private readonly scene: ThreeScene;
   private readonly mainCamera: MainCameraComponent;
   private readonly playerControlsScenario: Scenario<PlayerCharacterComponent>;
+  private readonly playerCameraControlsScenario: Scenario<MainCameraComponent>;
   private readonly followPlayerCameraScenario: Scenario<{
     mainCamera: MainCameraComponent;
     playerCharacter: PlayerCharacterComponent;
@@ -34,13 +37,15 @@ export class LostTreasureScene implements Scene {
   private sceneComponents: SceneComponent<string>[] = [];
 
   public constructor(
-    @inject(SERVICE_TYPES.KeyboardEvents) keyboardEvents: KeyboardEvents
+    @inject(SERVICE_TYPES.KeyboardEvents) keyboardEvents: KeyboardEvents,
+    @inject(SERVICE_TYPES.MouseEvents) mouseEvents: MouseEvents
   ) {
     this.scene = new ThreeScene();
     this.scene.background = new Color(0xa0a0a0);
     this.scene.fog = new Fog(0xa0a0a0, 200, 1000);
     this.mainCamera = new MainCameraComponent();
     this.playerControlsScenario = new PlayerControlsScenario(keyboardEvents);
+    this.playerCameraControlsScenario = new PlayerCameraControlsScenario(mouseEvents);
     this.followPlayerCameraScenario = new FollowPlayerScenario();
     this.groundFactory = new GroundComponentFactory();
     this.playerCharacterFactory = new PlayerCharacterComponentFactory();
@@ -75,6 +80,7 @@ export class LostTreasureScene implements Scene {
     }
 
     this.playerControlsScenario.start(this.playerCharacter!);
+    this.playerCameraControlsScenario.start(this.mainCamera);
     this.followPlayerCameraScenario.start({
       mainCamera: this.mainCamera,
       playerCharacter: this.playerCharacter!
@@ -83,6 +89,7 @@ export class LostTreasureScene implements Scene {
 
   public stop(): void {
     this.followPlayerCameraScenario.stop();
+    this.playerCameraControlsScenario.stop();
     this.playerControlsScenario.stop();
 
     for (const sceneComponent of this.sceneComponents) {

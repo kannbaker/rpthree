@@ -4,11 +4,13 @@
 flowchart TD
     App["App"] --> LayoutService["LayoutService"]
     App --> KeyboardEvents["KeyboardEvents"]
+    App --> MouseEvents["MouseEvents"]
     App --> ResourceFactoryBuilder["ResourceFactoryBuilder"]
     LayoutService --> WebGLRenderer["WebGLRenderer"]
     WebGLRenderer --> StatsService["StatsService"]
     WebGLRenderer --> Scene["Scene interface"]
     KeyboardEvents -.-> Scene
+    MouseEvents -.-> Scene
     ResourceFactoryBuilder -.-> WebGLRenderer
 ```
 

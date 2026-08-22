@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3, type Scene } from "three";
+import { MathUtils, PerspectiveCamera, Vector3, type Scene } from "three";
 
 import type { PlayerCharacterComponent } from "./PlayerCharacterComponent";
 import type { SceneComponent } from "../types/SceneComponent";
@@ -6,16 +6,18 @@ import type { SceneComponent } from "../types/SceneComponent";
 type MainCameraState = "idle";
 
 export class MainCameraComponent implements SceneComponent<MainCameraState> {
-  private static readonly CAMERA_DISTANCE = 220;
-  private static readonly CAMERA_HEIGHT = 120;
-  private static readonly LOOK_AHEAD_DISTANCE = 40;
+  private static readonly UP_AXIS = new Vector3(0, 1, 0);
   private static readonly LOOK_AT_HEIGHT = 80;
   private readonly camera: PerspectiveCamera;
   private readonly position = new Vector3();
   private readonly playerPosition = new Vector3();
   private readonly playerForward = new Vector3();
+  private readonly orbitDirection = new Vector3();
   private readonly lookAtTarget = new Vector3();
   private followTarget: PlayerCharacterComponent | null = null;
+  private yaw = 0;
+  private pitch = MathUtils.degToRad(29);
+  private distance = 250;
 
   public constructor() {
     this.camera = new PerspectiveCamera(45, 1, 1, 2000);
@@ -39,14 +41,22 @@ export class MainCameraComponent implements SceneComponent<MainCameraState> {
     this.followTarget.getWorldPosition(this.playerPosition);
     this.followTarget.getForward(this.playerForward);
 
+    this.orbitDirection
+      .copy(this.playerForward)
+      .multiplyScalar(-1)
+      .applyAxisAngle(MainCameraComponent.UP_AXIS, this.yaw)
+      .normalize();
+
+    const horizontalDistance = Math.cos(this.pitch) * this.distance;
+    const verticalDistance = Math.sin(this.pitch) * this.distance;
+
     this.camera.position
       .copy(this.playerPosition)
-      .addScaledVector(this.playerForward, -MainCameraComponent.CAMERA_DISTANCE);
-    this.camera.position.y += MainCameraComponent.CAMERA_HEIGHT;
+      .addScaledVector(this.orbitDirection, horizontalDistance);
+    this.camera.position.y += verticalDistance;
 
     this.lookAtTarget
-      .copy(this.playerPosition)
-      .addScaledVector(this.playerForward, MainCameraComponent.LOOK_AHEAD_DISTANCE);
+      .copy(this.playerPosition);
     this.lookAtTarget.y += MainCameraComponent.LOOK_AT_HEIGHT;
 
     this.camera.lookAt(this.lookAtTarget);
@@ -64,6 +74,12 @@ export class MainCameraComponent implements SceneComponent<MainCameraState> {
   public follow(playerCharacter: PlayerCharacterComponent): void {
     this.followTarget = playerCharacter;
     this.tick(0);
+  }
+
+  public setOrbitState(yaw: number, pitch: number, distance: number): void {
+    this.yaw = yaw;
+    this.pitch = pitch;
+    this.distance = distance;
   }
 
   public unfollow(): void {

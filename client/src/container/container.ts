@@ -3,6 +3,7 @@ import { Container } from "inversify";
 import { App } from "../app/App";
 import { KeyboardEvents } from "../services/KeyboardEvents";
 import { LayoutService } from "../services/LayoutService";
+import { MouseEvents } from "../services/MouseEvents";
 import { ResourceFactoryBuilder } from "../services/ResourceFactoryBuilder";
 import { StatsService } from "../services/StatsService";
 import { WebGLRenderer } from "../services/WebGLRenderer";
@@ -15,6 +16,7 @@ export function createContainer(): Container {
 
   container.bind<App>(SERVICE_TYPES.App).to(App).inSingletonScope();
   container.bind<KeyboardEvents>(SERVICE_TYPES.KeyboardEvents).to(KeyboardEvents).inSingletonScope();
+  container.bind<MouseEvents>(SERVICE_TYPES.MouseEvents).to(MouseEvents).inSingletonScope();
   container.bind<LayoutService>(SERVICE_TYPES.LayoutService).to(LayoutService).inSingletonScope();
   container
     .bind<ResourceFactoryBuilder>(SERVICE_TYPES.ResourceFactoryBuilder)

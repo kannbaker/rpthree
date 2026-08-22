@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.10
+
+- added singleton `MouseEvents` service
+- added `PlayerCameraControlsScenario` for mouse drag orbit and wheel zoom
+- moved camera orbit state updates into the camera control scenario
+- changed `MainCameraComponent` to apply precomputed orbit state in the render loop
+- updated `client-arch.md` with `MouseEvents`
+
 ## v1.0.9
 
 - moved the main camera into `MainCameraComponent`
